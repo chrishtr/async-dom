@@ -3,7 +3,6 @@
     
 ## Problem statement
 
-
 A responsive UI (main) thread is critical to good performance of web apps.
 Today, much of the Blink rendering pipeline (in particular, style, layout and
 paint) is run atomically and on the UI thread, and takes time proportional to
