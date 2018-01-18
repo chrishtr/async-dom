@@ -24,9 +24,10 @@ a promise which is resolved when the request is fulfilled. This happens after
 the work is done and the promise is resolved/rejected, but is otherwise not
 timed to rAF.
 
-* Lock.isCommitting(): returns true if so. Lock.onUnlock: called when a lock
-becomes unlocked, perhaps due to the user agent forcing it and perhaps due to
-a commit.
+* Lock.isCommitting(): returns true if so.
+
+* Lock.onUnlock: called when a lock becomes unlocked, perhaps due to the user
+agent forcing it and perhaps due to a commit.
 
 * Element.requestLock(<function>): Locks the element for display, then calls
 <function> with the lock as a parameter. Returns a promise which is resolved
@@ -50,7 +51,7 @@ function readyToUnlock() {
 function updateWidgetContents(lock) {
   if (moreWorkToDo()) {
     doSomeWork();
-    lock.requestDisplay(updateWidgetContents();
+    lock.requestDisplay(updateWidgetContents());
   }
   lock.commit().then(readyToUnlock);
 }
