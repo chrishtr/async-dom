@@ -156,7 +156,7 @@ when executed, will draw the current visual update.
 
 ##### Compositing
 In order to avoid doing repeated work, modern user-agents also employ
-compositing. Compositing phase is a process of splitting up draw commands into
+compositing. Compositing is a process of splitting up draw commands into
 separate layers, each with its own backing, in order to avoid re-rasterizing
 content in other layers.
 
