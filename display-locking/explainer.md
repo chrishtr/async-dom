@@ -143,7 +143,7 @@ stages, which we will call update phases. In order to understand how display
 locking proposal is going to work, we will briefly discuss the major update
 phases.
 
-Note to the reader: these phases are covered in greated detail in the
+Note to the reader: these phases are covered in greater detail in the
 [rendering event
 loop](https://github.com/chrishtr/rendering/blob/master/rendering-event-loop.md).
 Here, we briefly go over the main update phases that happen in a typical
