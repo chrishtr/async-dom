@@ -467,7 +467,49 @@ This allows us to better reason about the expected behavior of the page. Specifi
   changing the content on the rest of the page.
 
 ---
-### Edge cases
+### Dealing with user input
+
+One of the difficult aspects of locking an element for display is deciding what
+to do with user input (e.g. mouse clicks) that are targetted at the element
+which is locked for display.
+
+##### Queuing up input and replaying
+
+One option is to queue up the user input and replay it once the element is
+unlocked.
+
+Immediately, there is a problem with this approach: conceptually, user
+input is targetted at what the user is currently seeing on screen. However, when
+the display is locked for view, it means that whatever is currently visible does
+not necessarily reflect the DOM that currently comprises the element. To put it
+differently, script could have already mutated the DOM, removed interactive
+elements, added more interactive elements, etc, which means that the user input
+may be targetting an unexpected (from the user's perspective) element.
+
+Based on this argument, it seems that replaying the user input would often cause
+unexpected interactions. The only case where it might be reasonable to replay
+user input is if the locked subtree was not and _will_ not be modified before it
+is unlocked. However, detecting whether script intends to modify the locked
+subtree's DOM is impossible.
+
+##### Ignoring input
+
+Another alternative, which seems more prudent, is to ignore the user input when
+the target is a locked subtree. This prevents unexpected interactions.
+
+However, this comes at a cost of potential user frustration when attempting to
+interact with a locked subtree. From the user's perspective, the page would
+appear to be frozen: buttons don't change state, text fields don't gain focus,
+etc. An option to mitigate the appearance of a frozen page is to display an
+affordance, such as graying out the locked element, or displaying a spinner, if
+the user attempts to interact with it.
+
+This option does not seem to be ideal, since it's hard to agree on what type of
+affordance makes sense to display in any particular instance. That being said,
+it appears to be a better choice when compared to simply ignoring user input.
+
+---
+### Other edge cases
 
 There are a number of edge cases that need to be considered when working with
 display locking. This section briefly lists a few of them, but the list is far
