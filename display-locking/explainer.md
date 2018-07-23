@@ -470,16 +470,16 @@ This allows us to better reason about the expected behavior of the page. Specifi
 ### Dealing with user input
 
 One of the difficult aspects of locking an element for display is deciding what
-to do with user input (e.g. mouse clicks) that are targetted at the element
+to do with user input (e.g. mouse clicks) that are targeted at the element
 which is locked for display.
 
 ##### Queuing up input and replaying
 
-One option is to queue up the user input and replay it once the element is
+One option is to queue up the user input replaying it once the element is
 unlocked.
 
 Immediately, there is a problem with this approach: conceptually, user
-input is targetted at what the user is currently seeing on screen. However, when
+input is targeted at what the user is currently seeing on screen. However, when
 the display is locked for view, it means that whatever is currently visible does
 not necessarily reflect the DOM that currently comprises the element. To put it
 differently, script could have already mutated the DOM, removed interactive
