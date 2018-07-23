@@ -110,6 +110,28 @@ we want to be presented. **Even though the spinner animation is not a part of
 the subtree** (it’s an iframe in this example), it still janks because **DOM
 updates are atomic.**
 
+
+##### Common patterns
+
+There are other common patterns that exhibit similar behavior, and as a result
+suffer from similar drawbacks.
+
+- Resizing multi-pane UI with complex layout within each pane (IDEs do this).
+- Many widgets, for example YouTube: this site goes to great lengths to avoid
+  long layouts, by incrementalizing their Polymer DOM updates. This is perhaps
+  made trickier because Polymer uses a decentralized, widget-based update
+  system.
+- Latency-sensitive type/scroll with complex layout change. For example, display
+  of search results as-you-type without janking the text input box.
+- Expand or contract of an item with an infinite list (accordion view)
+- Measuring layout, with intent of sizing containers without actually displaying
+  the contents.
+
+In general, large-scale updates to application state in a web app can cause
+updates which induce large document lifecycle updates, including style, layout,
+compositing, and paint. In turn, these can cause jank on the page, due to
+lifecycle updates being synchronous with script and user interactions.
+
 In the rest of this document, we discuss display locking and how it can help
 with situations such as these.
 
@@ -119,7 +141,13 @@ with situations such as these.
 When processing DOM changes, the user-agent typically goes through several
 stages, which we will call update phases. In order to understand how display
 locking proposal is going to work, we will briefly discuss the major update
-phases.		
+phases.
+
+Note to the reader: these phases are covered in greated detail in the
+[rendering event
+loop](https://github.com/chrishtr/rendering/blob/master/rendering-event-loop.md).
+Here, we briefly go over the main update phases that happen in a typical
+user-agent.
 
 ##### Script
 During the script update phase, the user-agent executes script requested by the
