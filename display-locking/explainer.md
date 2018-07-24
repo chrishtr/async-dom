@@ -512,7 +512,7 @@ the display is locked for view, it means that whatever is currently visible does
 not necessarily reflect the DOM that currently comprises the element. To put it
 differently, script could have already mutated the DOM, removed interactive
 elements, added more interactive elements, etc, which means that the user input
-may be targetting an unexpected (from the user's perspective) element.
+may be targeting an unexpected (from the user's perspective) element.
 
 Based on this argument, it seems that replaying the user input would often cause
 unexpected interactions. The only case where it might be reasonable to replay
