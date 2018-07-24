@@ -110,6 +110,28 @@ we want to be presented. **Even though the spinner animation is not a part of
 the subtree** (it’s an iframe in this example), it still janks because **DOM
 updates are atomic.**
 
+
+##### Common patterns
+
+There are other common patterns that exhibit similar behavior, and as a result
+suffer from similar drawbacks.
+
+- Resizing multi-pane UI with complex layout within each pane (IDEs do this).
+- Many widgets, for example YouTube: this site goes to great lengths to avoid
+  long layouts, by incrementalizing their Polymer DOM updates. This is perhaps
+  made trickier because Polymer uses a decentralized, widget-based update
+  system.
+- Latency-sensitive type/scroll with complex layout change. For example, display
+  of search results as-you-type without janking the text input box.
+- Expand or contract of an item with an infinite list (accordion view)
+- Measuring layout, with intent of sizing containers without actually displaying
+  the contents.
+
+In general, large-scale updates to application state in a web app can cause
+updates which induce large document lifecycle updates, including style, layout,
+compositing, and paint. In turn, these can cause jank on the page, due to
+lifecycle updates being synchronous with script and user interactions.
+
 In the rest of this document, we discuss display locking and how it can help
 with situations such as these.
 
@@ -117,9 +139,15 @@ with situations such as these.
 ### Background
 
 When processing DOM changes, the user-agent typically goes through several
-stages, which we will call update phases. In order to understand how display
+stages, which we will call *update phases*. In order to understand how display
 locking proposal is going to work, we will briefly discuss the major update
-phases.		
+phases.
+
+Note to the reader: these phases are covered in greater detail in the
+[rendering event
+loop](https://github.com/chrishtr/rendering/blob/master/rendering-event-loop.md).
+Here, we briefly go over the main update phases that happen in a typical
+user-agent.
 
 ##### Script
 During the script update phase, the user-agent executes script requested by the
@@ -156,7 +184,7 @@ when executed, will draw the current visual update.
 
 ##### Compositing
 In order to avoid doing repeated work, modern user-agents also employ
-compositing. Compositing phase is a process of splitting up draw commands into
+compositing. Compositing is a process of splitting up draw commands into
 separate layers, each with its own backing, in order to avoid re-rasterizing
 content in other layers.
 
@@ -191,18 +219,18 @@ user.
 ---
 ### Proposal
 
-Display locking proposal is intended to improve the layout and paint, as well as
-parts of the compositing update phases. In particular, it aims to add javascript
-APIs to allow the developer to lock an element for display. This means that the
-element paint output (ie the output of the layout and paint phase) will not
-change while the lock is acquired. This, in turn, means that the user-agent does
-not have to finish processing the locked element’s subtree when processing the
-layout and paint phase. In other words, the user-agent is free to process parts
-of the subtree, eliminating them from the list of things that have changed (ie
-the dirty elements list). Note that this dirty list can be indirectly populated
-as well by, for example, changing CSS properties that affect some elements on
-the page. There are some edge cases to consider here which will be discussed
-later in this document.
+The display locking proposal is intended to improve the script, layout,  paint,
+as well as parts of the compositing update phases. In particular, it aims to add
+javascript APIs to allow the developer to lock an element for display. This
+means that the element and its subtree's paint output (ie the output of the
+layout and paint phase) will not change while the lock is acquired. This, in
+turn, means that the user-agent does not have to finish processing the locked
+element’s subtree when processing the layout and paint phase. In other words,
+the user-agent is free to process parts of the subtree, eliminating them from
+the list of things that have changed (ie the dirty elements list). Note that
+this dirty list can be indirectly populated as well by, for example, changing
+CSS properties that affect some elements on the page. There are some edge cases
+to consider here which will be discussed later in this document.
 
 ##### Element.getDisplayLock()
 
@@ -247,7 +275,7 @@ Commit performs the following steps:
 * It returns a promise, which resolves when the element enters the unlock
   pending phase.
 * It finishes all update phases for the locked element, as described above.
-* It enters unlock pending phase and return the promise. Note that at this
+* It enters the unlock pending phase and return the promise. Note that at this
   point, the element is still locked for visual updates. This allows the
   callback in the promise resolution to re-lock the lock without changing the
   visual representation of the element.
@@ -255,7 +283,7 @@ Commit performs the following steps:
   element is unlocked and enters the element is unlocked state.
 
 ---
-### Description
+### Implementation description
 
 There are two key components to implementing the display locking API.
 
@@ -370,9 +398,9 @@ implementation:
   time. For example, layout finishes first and skips the other phases. On the
   next frame, paint finishes, and skips the remainder. Etc.
 
-It’s possible that other approach could have better behavior than budgeted
+It’s possible that other approaches could have better behavior than budgeted
 update phases, but any approach is feasible as long as it implements
-co-operative phase updates.
+non-janking phase updates.
 
 ---
 ### Examples revisited
@@ -403,7 +431,7 @@ window.onload = function() {
 </script>
 ```
 
-Similar to the original example, onload we present the content in the
+Similar to the original example, on load we present the content in the
 `complicated_subtree`. However, this time the function is async and we await the
 surrounding container’s display lock acquire first. This causes the user-agent
 to lock the container for visual updates. Then, we modify the DOM by setting the
