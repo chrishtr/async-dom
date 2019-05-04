@@ -1,14 +1,21 @@
-There have been multiple [recent proposals](https://github.com/chrishtr/async-dom/blob/master/current-proposals.md) to add asynchrony to the DOM. They are aimed at different subsets of the problems of slow rendering.
-WorkerNode or WorkerDOM try to offload widget rendering lifecycle work onto a worker thread, in order to increase parallelism and avoid contention with other script and non-script work on the main thread. DOM changelists is similar.
-asyncAppend provides a subset of functionality that DisplayLocking does. Both provide some form of transactional-like update of a DOM subtree.
+There have been multiple [recent proposals](https://github.com/chrishtr/async-dom/blob/master/current-proposals.md) to add asynchrony to the DOM. They are aimed at different subsets of the problems of "slow rendering". "Slow rendering" generally falls into three categories:
 
-Ultimately, rendering can be slow for three fundamental reasons:
-1. Developer or browser code is poorly optimized for the use-case
-2. Non-rendering main-thread tasks slow things down
-3. There is too much work to do
+1. "Slow rendering" could happen because the browser or web page is inefficient. For example, maybe the browser has a bug leading to slow layout in certain cases, or it scales poorly with the number of composited layers.
 
-Issue #1 can be solved with a sufficient amount of effort on the part of the developer or browser engineer to optimize the code to be sufficiently fast. The same goes for issue #2, by chunking up the non-rendering code, scheduling it appropriately,  or avoiding it entirely when not needed. Further, issue #3 can be solved by doing less work, or changing the web app UI to introduce affordances such as pagination.
+2. "Slow rendering" could also happen because (user input and) rendering are delayed due to other work happening that uses up the CPU. Examples of this include time spent running GC, decoding an image, or running a slow ad analytics script.
 
-1. Business incentives.
-2. Layout will always be slow.
-3. Developer extensibility for fast paths.
+3. Finally, "slow rendering" can happen because there are simply too many things changed in the DOM or application state since the last render to expect it to update quickly. A good example is a global change of font size or page width that requires a complete re-layout of the entire DOM.
+
+If we're in one of the above situations, what should be done? One course of action coud be to try to address part of the problem. If #1 is the problem, it's always nice if the inefficiency can just be fixed directly. At a high level, that sounds straightforward. If #2 is the problem, then the solution may be to do non-rendering work on a different thread, or run it at a lower priority than rendering work. Seems harder than #1, but potentially doable.
+
+If #3 is the problem, then the solution becomes more murky. If the problem is "DOM changes too much", one possibility is to simply make the DOM smaller, to limit the scope of the problem. Another is to try to structure the DOM into pieces that can be processed independently, and avoid touching too much at a time. If the problem is "application state changes too much", then similar approaches can be applied to the script code that renders views of the state (make it smaller, break into independent pieces).
+
+However, these aren't the only solutions to problem #3! Other ideas include:
+ a. Using more CPU cores to do work in parallel
+ b. Predicting future work and doing it in advance
+ c. Breaking the DOM into pieces, and updating the pieces asynchronously from each other
+
+** Now what?
+
+There are a bunch of issues bound up here. They include that there is a single monolithic DOM for each frame, that scheduling and rendering of it is implemented by the browser (not the developer), that JavaScript is a single-threaded programming language, that the DOM APIs are not designed for multi-threaded access, and that CSS is a very expressive, wide and powerful API, and therefore quite challenging to implement efficiently.
+
