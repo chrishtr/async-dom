@@ -17,5 +17,15 @@ However, these aren't the only solutions to problem #3! Other ideas include:
 
 ** Now what?
 
-There are a bunch of issues bound up here. They include that there is a single monolithic DOM for each frame, that scheduling and rendering of it is implemented by the browser (not the developer), that JavaScript is a single-threaded programming language, that the DOM APIs are not designed for multi-threaded access, and that CSS is a very expressive, wide and powerful API, and therefore quite challenging to implement efficiently.
+There are a bunch of issues bound up here that make the above ideas challenging to follow up on. The issues include that there is a single monolithic DOM for each frame, that the timing & implementation of its rendering to the screen is implemented by the browser (not the developer), that JavaScript is a single-threaded programming language, that the DOM APIs are not designed for multi-threaded access, and that CSS is a very expressive, wide and powerful API, and therefore quite challenging to implement efficiently.
+
+But these are not all the issues! This does not yet touch issues on the developer side, such as that web applications use frameworks which [provide value](https://rendering.chrishtr.org/2019/01/what-is-value-of-virtual-dom.html) by abstracting *away* from the details of the DOM, that business realities limit how much work can go into optimizing a single web app, that there are multiple browsers -- not to mention multiple versions & variants of the same browser -- to contend with, that browser performance bugfixes or APIs may not be deliverable on timeframes that are acceptable to a business, and that features sell (or are perceived to sell) web apps more than performance does.
+
+What is needed is solutions that address the problem of "slow rendering", but that strategically minimize the issues mentioned above. Desirable properties of solutions include:
+
+* Minimimal difference in API and behavior from the existing web APIs
+* Does not preclude any use cases
+* Easy enough to adopt
+* Admits an incremental path of launch & iterate from a first MVP version to much more advanced ones
+* Compatible with established and popular ways of writing web apps
 
