@@ -39,7 +39,14 @@ This argument is particularly enticing for the web because of the inversion-of-c
 
 However, there is a question of feasibility: how long will it take to implement these fancy optimizations? Are they over-fitting for special cases? How hard will it be to implement these optimizations without bugs? Will all browsers be able to implement the fancy optimizations equally? (These drawbacks were also mentioned or hinted at in the previous section.)
 
-Another counterpoint is [Wirth's law](https://en.wikipedia.org/wiki/Wirth%27s_law), a version of which is "sofware will grow to fit the space available" - in this case space meaining performance budgets. This means that even if the browser optimizes to make one flexbox faster, the UI of web apps over time will add in a second flexbox, because it's convenient to do so.
+Another counterpoint is [Wirth's law](https://en.wikipedia.org/wiki/Wirth%27s_law), a version of which is "sofware will grow to fit the space available" - in this case space meaining performance budgets. This means that even if the browser optimizes to make one flexbox faster, the UI of web apps over time will add in a second flexbox, because it's convenient to do so, and solves the business problem at hand.
 
+It does make sense to make the browser faster and more scalable over time, by using a better [rendering code architecture](https://github.com/chrishtr/rendering/blob/master/rendering-architecture.md), by utilizing available [technologies](https://github.com/chrishtr/rendering/blob/master/rendering-technologies.md) such as GPUs, threading and process concurrency, multi-core machines, clever algorithms, and caching. Such work is actually necessary to make it *possible* to make the fancier and more immersive UIs of the future. But it doesn't really answer the question of Wirth's law, or in general the complex ecosystem effects resulting from the huge diversity of the web and the fact that ultimately the web is for expressing information, not worring about optimizing code.
+
+In addition to making the browser faster and adding some APIs to solve particular common UI use cases, we also need techonologies to help web apps *manage scale efficiently*. This is what the space of Async DOM is about.
+
+** The problem of coordination. Analogy with pre-emptive multitasking
+
+Before the advent of pre-emptive multitasking for Windows and MacOS in the mid-90s, those two dominant operating systems used a cooperative multi-tasking approach to running multiple programs simultaneously on the same computer. 
 
 
